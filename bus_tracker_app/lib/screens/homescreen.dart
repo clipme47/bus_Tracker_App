@@ -1,5 +1,5 @@
-import 'package:bus_tracker_app/utility/Data.dart';
-import 'package:bus_tracker_app/utility/GetSetMarker.dart';
+import 'package:bus_tracker_app/data/Data.dart';
+import 'package:bus_tracker_app/data/GetSetMarker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';

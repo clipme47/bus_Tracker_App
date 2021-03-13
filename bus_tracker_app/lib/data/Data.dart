@@ -1,4 +1,4 @@
-import 'package:bus_tracker_app/utility/GetSetMarker.dart';
+import 'package:bus_tracker_app/data/GetSetMarker.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 List a = [
