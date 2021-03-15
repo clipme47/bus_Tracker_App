@@ -13,12 +13,25 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  BitmapDescriptor normalMarker;
+  BitmapDescriptor inTroubleMarker;
+  Completer<GoogleMapController> _controller = Completer();
+  Set<Marker> markerList = {};
   var start = "แสดงทั้งหมด";
   double screen;
   double hScreen;
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   createMapMarker();
+  //   print("aaaaaa");
+  // }
+
   @override
   Widget build(BuildContext context) {
+    createIntroubleMarker(context);
+    createNormalMarker(context);
     screen = MediaQuery.of(context).size.width;
     hScreen = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -87,6 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onTap: () {
           setState(() {
             start = str;
+            markerlist(start);
             Navigator.pop(context);
           });
         },
@@ -96,42 +110,76 @@ class _HomeScreenState extends State<HomeScreen> {
 
   GoogleMap buildGoogleMap(String str) {
     return GoogleMap(
-        onMapCreated: (controller) {},
-        markers: Set.of(markerlist(str)),
+        onMapCreated: (controller) {
+          _controller.complete(controller);
+          markerlist(str);
+        },
+        markers: Set.of(markerList),
         initialCameraPosition: CameraPosition(
           target: LatLng(13.765162, 100.538344),
           zoom: 6,
         ));
   }
 
-  List<Marker> markerlist(String str) {
-    List<Marker> markerList = [];
+  void markerlist(String str) {
+    markerList.clear();
     List<GetSetMarker> data = getdata(str);
-    for (var item in data) {
-      Marker marker = Marker(
-          markerId: MarkerId(item.carID),
-          position: item.location,
-          icon: createMarker(item.status),
-          onTap: () {
-            return showModalBottomSheet(
-                context: context,
-                builder: (build) {
-                  return Container(
-                      height: hScreen * 0.25,
-                      child: ListView(children: [
-                        buildBottomCard("CarID", item.carID),
-                        buildBottomCard("DriverName", item.driverName),
-                        buildBottomCard("CompanyName", item.companyName),
-                        buildBottomCard("Route", item.route),
-                        buildBottomCard("Status", setStatus(item.status)),
-                      ]));
-                });
-          });
+    Set<Marker> setMarker = {};
+    setState(() {
+      for (var item in data) {
+        Marker marker = Marker(
+            markerId: MarkerId(item.carID),
+            position: item.location,
+            icon: createMarker(item.status),
+            onTap: () {
+              return showModalBottomSheet(
+                  context: context,
+                  builder: (build) {
+                    return Container(
+                        height: hScreen * 0.25,
+                        child: ListView(children: [
+                          buildBottomCard("CarID", item.carID),
+                          buildBottomCard("DriverName", item.driverName),
+                          buildBottomCard("CompanyName", item.companyName),
+                          buildBottomCard("Route", item.route),
+                          buildBottomCard("Status", setStatus(item.status)),
+                        ]));
+                  });
+            });
 
-      markerList.add(marker);
-    }
-    return markerList;
+        setMarker.add(marker);
+      }
+      markerList = setMarker;
+      print(markerList.length);
+    });
   }
+
+  void createNormalMarker(context) {
+    ImageConfiguration configuration = createLocalImageConfiguration(context);
+    BitmapDescriptor.fromAssetImage(configuration, "assets/normal.png")
+        .then((icon) {
+      setState(() {
+        normalMarker = icon;
+      });
+    });
+  }
+
+  void createIntroubleMarker(context) {
+    ImageConfiguration configuration = createLocalImageConfiguration(context);
+    BitmapDescriptor.fromAssetImage(configuration, "assets/introuble.png")
+        .then((icon) {
+      setState(() {
+        inTroubleMarker = icon;
+      });
+    });
+  }
+
+  // void createMapMarker() async {
+  //   normalMarker = await BitmapDescriptor.fromAssetImage(
+  //       ImageConfiguration(size: Size(20, 20)), "assets/normal.png");
+  //   inTroubleMarker = await BitmapDescriptor.fromAssetImage(
+  //       ImageConfiguration(size: Size(20, 20)), "assets/introuble.png");
+  // }
 
   Container buildBottomCard(String title, String info) {
     return Container(
@@ -152,9 +200,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   BitmapDescriptor createMarker(bool status) {
     if (status == true) {
-      return BitmapDescriptor.defaultMarkerWithHue(140);
+      return normalMarker;
+      // return BitmapDescriptor.defaultMarkerWithHue(140);
     } else {
-      return BitmapDescriptor.defaultMarkerWithHue(0);
+      return inTroubleMarker;
+      // return BitmapDescriptor.defaultMarkerWithHue(0);
     }
   }
 
