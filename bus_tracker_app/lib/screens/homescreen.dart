@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'package:bus_tracker_app/data/Data.dart';
 import 'package:bus_tracker_app/data/GetSetMarker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'dart:async';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key key, this.title}) : super(key: key);
@@ -25,13 +27,12 @@ class _HomeScreenState extends State<HomeScreen> {
   // void initState() {
   //   super.initState();
   //   createMapMarker();
-  //   print("aaaaaa");
   // }
 
   @override
   Widget build(BuildContext context) {
-    createIntroubleMarker(context);
-    createNormalMarker(context);
+    // createIntroubleMarker(context);
+    createMapMarker(context);
     screen = MediaQuery.of(context).size.width;
     hScreen = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -46,14 +47,135 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Container buildContainerOption(String str) {
+  GoogleMap buildGoogleMap(String str) {
+    return GoogleMap(
+        onMapCreated: (controller) {
+          _controller.complete(controller);
+          markerlist(str);
+        },
+        markers: Set.of(markerList),
+        initialCameraPosition: CameraPosition(
+          target: LatLng(13.765162, 100.538344),
+          zoom: 6,
+        ));
+  }
+
+  void markerlist(String str) {
+    markerList.clear();
+    List<GetSetMarker> data = getdata(str);
+    Set<Marker> setMarker = {};
+    setState(() {
+      for (var item in data) {
+        Marker marker = Marker(
+            markerId: MarkerId(item.carID),
+            position: item.location,
+            icon: createMarker(item.status),
+            onTap: () {
+              return showModalBottomSheet(
+                  context: context,
+                  builder: (build) {
+                    return Container(
+                        height: hScreen * 0.3,
+                        child: ListView(children: [
+                          buildBottomCard("CarID", item.carID),
+                          buildBottomCard("DriverName", item.driverName),
+                          buildBottomCard("CompanyName", item.companyName),
+                          buildBottomCard("Route", item.route),
+                          buildBottomCard("Status", setStatus(item.status)),
+                          buildBottomCardForPhoneCall("Phone", item.phone)
+                        ]));
+                  });
+            });
+
+        setMarker.add(marker);
+      }
+      markerList = setMarker;
+      print(markerList.length);
+    });
+  }
+
+  void createMapMarker(context) {
+    ImageConfiguration configuration = createLocalImageConfiguration(context);
+    BitmapDescriptor.fromAssetImage(configuration, "assets/normal.png")
+        .then((icon) {
+      setState(() {
+        normalMarker = icon;
+      });
+    });
+    BitmapDescriptor.fromAssetImage(configuration, "assets/introuble.png")
+        .then((icon) {
+      setState(() {
+        inTroubleMarker = icon;
+      });
+    });
+  }
+
+  // void createMapMarker() async {
+  //   normalMarker = await BitmapDescriptor.fromAssetImage(
+  //       ImageConfiguration(size: Size(20, 20)), "assets/normal.png");
+  //   inTroubleMarker = await BitmapDescriptor.fromAssetImage(
+  //       ImageConfiguration(size: Size(20, 20)), "assets/introuble.png");
+  // }
+
+  BitmapDescriptor createMarker(bool status) {
+    if (status == true) {
+      return normalMarker;
+      // return BitmapDescriptor.defaultMarkerWithHue(140);
+    } else {
+      return inTroubleMarker;
+      // return BitmapDescriptor.defaultMarkerWithHue(0);
+    }
+  }
+
+  String setStatus(bool status) {
+    if (status == true) {
+      return ("Normal");
+    } else {
+      return ("In Trouble");
+    }
+  }
+
+  Container buildBottomCard(String title, String info) {
     return Container(
-      alignment: AlignmentDirectional.topStart,
-      padding: EdgeInsets.all(10),
-      child: Text(str,
-          style:
-              TextStyle(color: Colors.grey[700], fontWeight: FontWeight.bold)),
-    );
+        color: Colors.blue[600],
+        width: screen * 0.9,
+        height: hScreen * 0.05,
+        child: Card(
+            color: Colors.blue[300],
+            shadowColor: Colors.blueGrey,
+            elevation: 3,
+            child: Center(
+              child: Text(
+                "$title : $info",
+                style: TextStyle(fontSize: 20, color: Colors.white),
+              ),
+            )));
+  }
+
+  Container buildBottomCardForPhoneCall(String title, String info) {
+    return Container(
+        color: Colors.blue[600],
+        width: screen * 0.9,
+        height: hScreen * 0.05,
+        child: Card(
+          color: Colors.blue[300],
+          shadowColor: Colors.blueGrey,
+          elevation: 3,
+          child: ListTile(
+            title: Padding(
+              padding: const EdgeInsets.only(bottom: 2.5),
+              child: Center(
+                child: Text(
+                  "$title : $info",
+                  style: TextStyle(fontSize: 20, color: Colors.white),
+                ),
+              ),
+            ),
+            onTap: () {
+              phoneCall("tel:$info");
+            },
+          ),
+        ));
   }
 
   SafeArea buildContainerofEnddraw() {
@@ -108,111 +230,21 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  GoogleMap buildGoogleMap(String str) {
-    return GoogleMap(
-        onMapCreated: (controller) {
-          _controller.complete(controller);
-          markerlist(str);
-        },
-        markers: Set.of(markerList),
-        initialCameraPosition: CameraPosition(
-          target: LatLng(13.765162, 100.538344),
-          zoom: 6,
-        ));
-  }
-
-  void markerlist(String str) {
-    markerList.clear();
-    List<GetSetMarker> data = getdata(str);
-    Set<Marker> setMarker = {};
-    setState(() {
-      for (var item in data) {
-        Marker marker = Marker(
-            markerId: MarkerId(item.carID),
-            position: item.location,
-            icon: createMarker(item.status),
-            onTap: () {
-              return showModalBottomSheet(
-                  context: context,
-                  builder: (build) {
-                    return Container(
-                        height: hScreen * 0.25,
-                        child: ListView(children: [
-                          buildBottomCard("CarID", item.carID),
-                          buildBottomCard("DriverName", item.driverName),
-                          buildBottomCard("CompanyName", item.companyName),
-                          buildBottomCard("Route", item.route),
-                          buildBottomCard("Status", setStatus(item.status)),
-                        ]));
-                  });
-            });
-
-        setMarker.add(marker);
-      }
-      markerList = setMarker;
-      print(markerList.length);
-    });
-  }
-
-  void createNormalMarker(context) {
-    ImageConfiguration configuration = createLocalImageConfiguration(context);
-    BitmapDescriptor.fromAssetImage(configuration, "assets/normal.png")
-        .then((icon) {
-      setState(() {
-        normalMarker = icon;
-      });
-    });
-  }
-
-  void createIntroubleMarker(context) {
-    ImageConfiguration configuration = createLocalImageConfiguration(context);
-    BitmapDescriptor.fromAssetImage(configuration, "assets/introuble.png")
-        .then((icon) {
-      setState(() {
-        inTroubleMarker = icon;
-      });
-    });
-  }
-
-  // void createMapMarker() async {
-  //   normalMarker = await BitmapDescriptor.fromAssetImage(
-  //       ImageConfiguration(size: Size(20, 20)), "assets/normal.png");
-  //   inTroubleMarker = await BitmapDescriptor.fromAssetImage(
-  //       ImageConfiguration(size: Size(20, 20)), "assets/introuble.png");
-  // }
-
-  Container buildBottomCard(String title, String info) {
+  Container buildContainerOption(String str) {
     return Container(
-        color: Colors.blue[600],
-        width: screen * 0.9,
-        height: hScreen * 0.05,
-        child: Card(
-            color: Colors.blue[300],
-            shadowColor: Colors.blueGrey,
-            elevation: 3,
-            child: Center(
-              child: Text(
-                "$title : $info",
-                style: TextStyle(fontSize: 20, color: Colors.white),
-              ),
-            )));
+      alignment: AlignmentDirectional.topStart,
+      padding: EdgeInsets.all(10),
+      child: Text(str,
+          style:
+              TextStyle(color: Colors.grey[700], fontWeight: FontWeight.bold)),
+    );
   }
 
-  BitmapDescriptor createMarker(bool status) {
-    if (status == true) {
-      return normalMarker;
-      // return BitmapDescriptor.defaultMarkerWithHue(140);
+  void phoneCall(command) async {
+    if (await canLaunch(command)) {
+      await launch(command);
     } else {
-      return inTroubleMarker;
-      // return BitmapDescriptor.defaultMarkerWithHue(0);
-    }
-  }
-
-  String setStatus(bool status) {
-    if (status == true) {
-      return ("Normal");
-    } else {
-      return ("In Trouble");
+      print("Cound not launch command");
     }
   }
 }

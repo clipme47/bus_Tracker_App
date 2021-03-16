@@ -8,8 +8,9 @@ class GetSetMarker {
   String route;
   bool status;
   LatLng location;
+  String phone;
 
 //รับข้อมูลในรูปแบบList
   GetSetMarker(this.carID, this.driverName, this.companyName, this.route,
-      this.status, this.location);
+      this.status, this.location, this.phone);
 }
