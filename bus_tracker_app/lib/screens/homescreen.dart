@@ -82,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           buildBottomCard("CompanyName", item.companyName),
                           buildBottomCard("Route", item.route),
                           buildBottomCard("Status", setStatus(item.status)),
-                          buildBottomCardForPhoneCall("Phone", item.phone)
+                          buildPhoneCallButton(item)
                         ]));
                   });
             });
@@ -152,30 +152,27 @@ class _HomeScreenState extends State<HomeScreen> {
             )));
   }
 
-  Container buildBottomCardForPhoneCall(String title, String info) {
+  Container buildPhoneCallButton(GetSetMarker item) {
     return Container(
-        color: Colors.blue[600],
-        width: screen * 0.9,
-        height: hScreen * 0.05,
-        child: Card(
-          color: Colors.blue[300],
-          shadowColor: Colors.blueGrey,
-          elevation: 3,
-          child: ListTile(
-            title: Padding(
-              padding: const EdgeInsets.only(bottom: 2.5),
-              child: Center(
-                child: Text(
-                  "$title : $info",
-                  style: TextStyle(fontSize: 20, color: Colors.white),
-                ),
-              ),
-            ),
-            onTap: () {
-              phoneCall("tel:$info");
-            },
-          ),
-        ));
+      color: Colors.blue[600],
+      width: screen * 0.9,
+      height: hScreen * 0.05,
+      child: Card(
+        color: Colors.blue[300],
+        shadowColor: Colors.blueGrey,
+        elevation: 3,
+        child: FlatButton(
+          onPressed: () {
+            phoneCall("tel:${item.phone}");
+          },
+          child: Text("Phone : ${item.phone}",
+              style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w400)),
+        ),
+      ),
+    );
   }
 
   SafeArea buildContainerofEnddraw() {
