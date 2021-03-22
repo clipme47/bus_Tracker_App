@@ -1,4 +1,6 @@
 import 'package:bus_tracker_app/data/GetSetMarker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 List a = [
@@ -267,9 +269,10 @@ List a = [
 
 // List<GetSetMarker> prepareallData(List dataList) {
 //   List<GetSetMarker> data = [];
+
 //   for (var item in dataList) {
-//     data.add(
-//         GetSetMarker(item[0], item[1], item[2], item[3], item[4], item[5],item[6]));
+//     data.add(GetSetMarker(
+//         item[0], item[1], item[2], item[3], item[4], item[5], item[6]));
 //   }
 //   return data;
 // }
@@ -288,10 +291,24 @@ List<GetSetMarker> prepareData(List dataList, String str) {
   return data;
 }
 
+List<GetSetMarker> getdata(String str) {
+  return prepareData(a, str);
+}
+
 // List<GetSetMarker> getalldata() {
 //   return prepareallData(a);
 // }
 
-List<GetSetMarker> getdata(String str) {
-  return prepareData(a, str);
-}
+// void getCloudData() async {
+//   await Firebase.initializeApp().then((value) async {
+//     await FirebaseFirestore.instance
+//         .collection("busDetail")
+//         .snapshots()
+//         .listen((event) {
+//       for (var data in event.docs) {
+//         Map<String, dynamic> map = data.data();
+//         GetSetMarker cloudData = GetSetMarker.
+//       }
+//     });
+//   });
+//}

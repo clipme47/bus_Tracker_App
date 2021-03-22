@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:bus_tracker_app/data/Data.dart';
 import 'package:bus_tracker_app/data/GetSetMarker.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -109,13 +110,6 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     });
   }
-
-  // void createMapMarker() async {
-  //   normalMarker = await BitmapDescriptor.fromAssetImage(
-  //       ImageConfiguration(size: Size(20, 20)), "assets/normal.png");
-  //   inTroubleMarker = await BitmapDescriptor.fromAssetImage(
-  //       ImageConfiguration(size: Size(20, 20)), "assets/introuble.png");
-  // }
 
   BitmapDescriptor createMarker(bool status) {
     if (status == true) {
