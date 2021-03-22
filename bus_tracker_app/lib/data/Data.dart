@@ -299,16 +299,34 @@ List<GetSetMarker> getdata(String str) {
 //   return prepareallData(a);
 // }
 
-// void getCloudData() async {
-//   await Firebase.initializeApp().then((value) async {
-//     await FirebaseFirestore.instance
-//         .collection("busDetail")
-//         .snapshots()
-//         .listen((event) {
-//       for (var data in event.docs) {
-//         Map<String, dynamic> map = data.data();
-//         GetSetMarker cloudData = GetSetMarker.
-//       }
-//     });
-//   });
-//}
+void getDataFromCloud() {
+  for (var item in getClouddata) {
+    print(item);
+  }
+}
+
+List<GetSetMarker> getClouddata = [];
+
+void getCloudData() async {
+  await Firebase.initializeApp().then((value) async {
+    await FirebaseFirestore.instance
+        .collection("busDetail")
+        .snapshots()
+        .listen((event) {
+      for (var clouddata in event.docs) {
+        Map<String, dynamic> map = clouddata.data();
+
+        var carId = map['carId'];
+        var driverName = map["driverName"];
+        var companyName = map["companyName"];
+        var route = map["route"];
+        var status = map["status"];
+        LatLng location = new LatLng(map["lat"], map["lng"]);
+        var phone = map["phone"];
+        getClouddata.add(GetSetMarker(
+            carId, driverName, companyName, route, status, location, phone));
+      }
+      print(getClouddata);
+    });
+  });
+}

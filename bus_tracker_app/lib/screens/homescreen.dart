@@ -24,6 +24,13 @@ class _HomeScreenState extends State<HomeScreen> {
   double screen;
   double hScreen;
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getCloudData();
+  }
+
   // @override
   // void initState() {
   //   super.initState();
@@ -214,6 +221,7 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() {
             start = str;
             markerlist(start);
+            getDataFromCloud();
             Navigator.pop(context);
           });
         },
