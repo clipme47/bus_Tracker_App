@@ -2,6 +2,7 @@ import 'package:bus_tracker_app/data/GetSetMarker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'dart:async';
 
 List a = [
   [
@@ -267,16 +268,6 @@ List a = [
   ],
 ];
 
-// List<GetSetMarker> prepareallData(List dataList) {
-//   List<GetSetMarker> data = [];
-
-//   for (var item in dataList) {
-//     data.add(GetSetMarker(
-//         item[0], item[1], item[2], item[3], item[4], item[5], item[6]));
-//   }
-//   return data;
-// }
-
 List<GetSetMarker> prepareData(List dataList, String str) {
   List<GetSetMarker> data = [];
   for (var item in dataList) {
@@ -295,38 +286,16 @@ List<GetSetMarker> getdata(String str) {
   return prepareData(a, str);
 }
 
+// List<GetSetMarker> prepareallData(List dataList) {
+//   List<GetSetMarker> data = [];
+
+//   for (var item in dataList) {
+//     data.add(GetSetMarker(
+//         item[0], item[1], item[2], item[3], item[4], item[5], item[6]));
+//   }
+//   return data;
+// }
+
 // List<GetSetMarker> getalldata() {
 //   return prepareallData(a);
 // }
-
-void getDataFromCloud() {
-  for (var item in getClouddata) {
-    print(item);
-  }
-}
-
-List<GetSetMarker> getClouddata = [];
-
-void getCloudData() async {
-  await Firebase.initializeApp().then((value) async {
-    await FirebaseFirestore.instance
-        .collection("busDetail")
-        .snapshots()
-        .listen((event) {
-      for (var clouddata in event.docs) {
-        Map<String, dynamic> map = clouddata.data();
-
-        var carId = map['carId'];
-        var driverName = map["driverName"];
-        var companyName = map["companyName"];
-        var route = map["route"];
-        var status = map["status"];
-        LatLng location = new LatLng(map["lat"], map["lng"]);
-        var phone = map["phone"];
-        getClouddata.add(GetSetMarker(
-            carId, driverName, companyName, route, status, location, phone));
-      }
-      print(getClouddata);
-    });
-  });
-}

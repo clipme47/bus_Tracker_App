@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:bus_tracker_app/data/CloudData.dart';
 import 'package:bus_tracker_app/data/Data.dart';
 import 'package:bus_tracker_app/data/GetSetMarker.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -28,7 +29,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    getCloudData();
   }
 
   // @override
@@ -221,8 +221,8 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() {
             start = str;
             markerlist(start);
-            getDataFromCloud();
             Navigator.pop(context);
+            setdata();
           });
         },
       ),
